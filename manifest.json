@@ -1,0 +1,10 @@
+{
+	"id": "mdname-highlight",
+	"name": "mdName Highlight",
+	"version": "1.0.0",
+	"minAppVersion": "1.0.0",
+	"description": "Color-code mdName manga scripts (Markdown with ## p.001 page headings), flag malformed page headings, and manage line IDs for balloon styles.",
+	"author": "Hiroki UGAWA",
+	"authorUrl": "https://himikokura.net/CatFoodEater/",
+	"isDesktopOnly": false
+}

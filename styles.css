@@ -1,0 +1,242 @@
+/* mdName Highlight - 配色 (文字色のみ。背景は付けない)
+ * txtName Highlight と同じ色系統 (台詞=緑 / テロップ=紫 / 注釈=橙 / 発話者=青灰 /
+ * 柱書き・ト書き=黄色系)。
+ * 編集/ライブプレビューは CodeMirror スパン (.cm-header / .cm-quote / .cm-em /
+ * .cm-strong) を、閲覧 (リーディング) モードは変換後の HTML 要素 (em / strong 等) を
+ * それぞれ上書きするため、両方のセレクタを列挙している。 */
+
+/* 見出し (# 話数 / ## ページ) はテーマの基本文字色・太字 */
+.mdname-heading,
+.mdname-heading .cm-header { color: var(--text-normal); font-weight: 600; }
+
+/* 崩れた見出し (全角・余分な空白・後ろの飾り・差の誤った見開き・打ち間違い) に
+ * スペルチェック風の波線を引く。**マウスを載せると理由が出る** (title 属性)。
+ * **編集ビューだけ**。打っている行には出さない (main.js の buildDecorations)。
+ * 着色 (文字色) は変えない —— 色は「何の記法か」を表す体系なので、そこへ
+ * 「正しいか」を混ぜない。波線は色と別の軸なので両立する。 */
+.mdname-heading-warn {
+	text-decoration: underline wavy var(--text-error);
+	text-decoration-skip-ink: none;
+	text-underline-offset: 0.25em;
+}
+
+/* **コードフェンスの中の行だけ、下線の位置を上げる。** 閉じていないフェンスは、フェンスの中の
+ * 行に波線を付ける (main.js の unclosedFenceWarnLine)。Obsidian はフェンスの中の行を
+ * 詰めて描くので、通常の位置 (0.25em 下) に引くと**波線の下半分が行の外へ出て切れた**
+ * (実機で作者が確認。山の部分だけが見えた)。位置を上げて、波線全体が行の中に収まるようにする。
+ * Obsidian が付ける HyperMD-codeblock クラスで見分ける (編集ビューだけ)。 */
+.HyperMD-codeblock.mdname-heading-warn {
+	text-underline-offset: 0.05em;
+}
+
+/* **直後の行がコードフェンスの行**も同じ。Live Preview はフェンスを図として描き、その上端が
+ * 直前の行の波線の下半分に重なって隠した (無効な発話者の次がフェンスのとき、実機で確認)。
+ * 位置は main.js が mdname-warn-above-fence を付ける。 */
+.mdname-heading-warn.mdname-warn-above-fence {
+	text-underline-offset: 0.05em;
+}
+
+/* 閲覧モードのみ: ページ見出し (## p.NNN = h2) の**上**に罫線を付けてページの区切りを見やすくする
+ * (# 話数 = h1 には付けない)。**編集モードと同じ位置・同じ細い罫線** (2026-10-04 作者の指示。以前は見出しの
+ * 後ろに `─────` の文字を足していた)。文字が罫線に付かないよう、罫線の下に少し余白を取る。 */
+.markdown-preview-view .mdname-heading h2,
+.markdown-preview-view h2.mdname-heading {
+	border-top: 1px solid var(--text-faint);
+	padding-top: 0.3em;
+}
+
+/* 柱書き (###) とト書き (-) は黄色系の文字色で強調する (背景は付けない)。
+ * 純黄色はライト背景で読みづらいので、ライトは濃い黄土色・ダークは明るい黄色にする。
+ * .cm-header (編集) / h3 (閲覧) の文字色も上書きする。 */
+.theme-light .mdname-scene,
+.theme-light .mdname-scene .cm-header,
+.theme-light .mdname-scene h3,
+.theme-light .mdname-direction { color: #8a6600; }
+.theme-dark  .mdname-scene,
+.theme-dark  .mdname-scene .cm-header,
+.theme-dark  .mdname-scene h3,
+.theme-dark  .mdname-direction { color: #B3A978; }
+
+/* 台詞 >... (緑系)。閲覧モードは <blockquote>/<p>、編集は .cm-quote。
+ * フォントサイズ拡大 (1.15em) は閲覧モード限定 (編集モードは Obsidian 本体の
+ * 引用行スタイルが勝って効かないため行わない。2026-07-12 断念)。 */
+.markdown-preview-view .mdname-dialogue { font-size: 1.15em; }
+.theme-light .mdname-dialogue,
+.theme-light .mdname-dialogue .cm-quote,
+.theme-light .mdname-dialogue blockquote,
+.theme-light .mdname-dialogue p { color: #0d7a5c; }
+.theme-dark  .mdname-dialogue,
+.theme-dark  .mdname-dialogue .cm-quote,
+.theme-dark  .mdname-dialogue blockquote,
+.theme-dark  .mdname-dialogue p { color: #8fdcbf; }
+
+/* テロップ ***...*** (紫系・少し大きく)。閲覧モードは <em><strong>、編集は
+ * .cm-strong/.cm-em。日本語の斜体は擬似変形で読みにくいので italic は打ち消す。 */
+.mdname-telop { font-size: 1.0em; }
+.mdname-telop .cm-em,
+.mdname-telop em { font-style: normal; }
+.theme-light .mdname-telop,
+.theme-light .mdname-telop .cm-strong,
+.theme-light .mdname-telop .cm-em,
+.theme-light .mdname-telop em,
+.theme-light .mdname-telop strong { color: #5a50c8; }
+.theme-dark  .mdname-telop,
+.theme-dark  .mdname-telop .cm-strong,
+.theme-dark  .mdname-telop .cm-em,
+.theme-dark  .mdname-telop em,
+.theme-dark  .mdname-telop strong { color: #c3bdf5; }
+/* 閲覧モードのみ: テロップを 【...】 で囲んで表示する (例 THE END → 【THE END】)。
+ * ***...*** は <p> 直下に <em><strong> または <strong><em> で入るため、
+ * 最外の直下要素にだけ付ける (編集モードは *** 記法のまま表示)。 */
+.markdown-preview-view .mdname-telop p > em::before,
+.markdown-preview-view .mdname-telop p > strong::before,
+.markdown-preview-view p.mdname-telop > em::before,
+.markdown-preview-view p.mdname-telop > strong::before { content: "【"; }
+.markdown-preview-view .mdname-telop p > em::after,
+.markdown-preview-view .mdname-telop p > strong::after,
+.markdown-preview-view p.mdname-telop > em::after,
+.markdown-preview-view p.mdname-telop > strong::after  { content: "】"; }
+
+/* 注釈 {} (橙系・少し小さく) */
+.mdname-annotation { font-size: 0.9em; }
+.theme-light .mdname-annotation { color: #b0521f; }
+.theme-dark  .mdname-annotation { color: #f2b696; }
+
+/* 発話者行 **名前[@所属][:status]** (青灰系・太字・少し小さく)。
+ * 閲覧モードは <strong>、編集は .cm-strong */
+.mdname-speaker { font-size: 0.9em; }
+.theme-light .mdname-speaker,
+.theme-light .mdname-speaker .cm-strong,
+.theme-light .mdname-speaker strong { color: #3f6e94; font-weight: 700; }
+.theme-dark  .mdname-speaker,
+.theme-dark  .mdname-speaker .cm-strong,
+.theme-dark  .mdname-speaker strong { color: #9cc3e0; font-weight: 700; }
+
+/* 分岐ブロック (導入文 0. と選択肢 1. 2. ...) はシアン系で共通着色。
+ * 閲覧モードは <ol>/<li> になるので内部要素も対象にする。
+ * 閲覧では導入文と選択肢が1つの <ol> にまとまり CSS 詳細度で色が混ざるため、
+ * 両者を同色にして単純化している (編集モードは行単位で別クラスだが同色)。 */
+.theme-light .mdname-branch-prompt,
+.theme-light .mdname-branch-prompt ol,
+.theme-light .mdname-branch-prompt li,
+.theme-light .mdname-branch-choice,
+.theme-light .mdname-branch-choice ol,
+.theme-light .mdname-branch-choice li { color: #1a6b78; }
+.theme-dark  .mdname-branch-prompt,
+.theme-dark  .mdname-branch-prompt ol,
+.theme-dark  .mdname-branch-prompt li,
+.theme-dark  .mdname-branch-choice,
+.theme-dark  .mdname-branch-choice ol,
+.theme-dark  .mdname-branch-choice li { color: #a0dce4; }
+
+/* その他の地の文 (記法外) はグレー */
+.mdname-plain { color: var(--text-muted); }
+
+/* 打ち切りマーカー ÷÷÷÷ 以降 (メモ扱い。テーマの薄文字色) */
+.mdname-cut { color: var(--text-faint); }
+
+/* ルビ <...> (行の色のまま少し薄く) */
+.mdname-ruby { opacity: 0.6; }
+
+/* 行 ID <!--id:a1b2c3--> (書式ではなく付帯情報なので、あることが分かる程度に薄く)
+ * **隠さずに薄くする**。編集ビューで行を消すと、カーソルの移動や選択が
+ * その行だけ飛ぶように見えて分かりにくい。閲覧ビューでは Markdown が
+ * HTML コメントを描かないので、そもそも出ない (ここは編集ビューだけの話)。 */
+.mdname-lineid {
+	color: var(--text-faint);
+	opacity: 0.5;
+	font-size: 0.85em;
+}
+
+/* 画面への指示 <!--cmd:clear--> (桃色系)。**行 ID とは逆に、はっきり出す** ―
+ * ID は機械が付ける印なので薄くてよいが、こちらは**作者が書く演出指示**で、
+ * 「どこで画面を区切ったか」を原稿を読んで追うことになるため目で探せる必要がある。
+ * 他の記法で使っていない色系統を選んでいる (緑=台詞 / 紫=テロップ / 橙=注釈 /
+ * 青灰=発話者 / 黄土=柱書き・ト書き / シアン=分岐)。 */
+.mdname-cmd { font-size: 0.9em; font-weight: 600; }
+.theme-light .mdname-cmd { color: #a8327d; }
+.theme-dark  .mdname-cmd { color: #f0a8d0; }
+
+/* --- 閲覧 (リーディング) モードのみ非表示にする要素 ---
+ * ÷÷÷÷ 以降のメモ・注釈 {}・md 記法外の地の文は、完成イメージの確認時に邪魔なので
+ * 閲覧モードでは隠す (編集モードでは表示・編集できる)。.markdown-preview-view 配下に
+ * 限定することで、CodeMirror エディタ (編集/ライブプレビュー) には影響しない。 */
+.markdown-preview-view .mdname-cut,
+.markdown-preview-view .mdname-annotation,
+.markdown-preview-view .mdname-plain { display: none; }
+
+/* 分岐行内のゲーム用コード `hp = hp - 1` (インラインコード) は閲覧モードでも表示する
+ * (当初は非表示だったが、GameBook プラグインで遊ぶ際にコストや条件が見える方が
+ * 分かりやすいため表示に変更。2026-07-13)。 */
+
+/* 分岐の導入文 0. は閲覧モードでは番号を隠して表示する (選択肢の 1. 2. はそのまま)。
+ * 選択肢との間に空行相当の間隔を空ける。クラスは main.js がソース行から判定して付与。 */
+.markdown-preview-view li.mdname-branch-intro {
+	list-style: none;
+	margin-bottom: 0.8em;
+}
+
+/* 0. がリンクのみ (無条件遷移) は番号を隠し「→リンク」で表示 (矢印は main.js が挿入)。 */
+.markdown-preview-view li.mdname-branch-jump { list-style: none; }
+
+/* 冒頭のプロパティ (frontmatter。status: "[[status]]" 等) も閲覧モードでは隠す。
+ * ゲーム本体が読む設定であって、完成イメージの確認には不要なため。
+ * mdName ファイル (mdname-heading を含むビュー) に :has() で限定し、
+ * 通常ノートのプロパティ表示には影響させない (編集モードでは表示・編集できる)。 */
+.markdown-preview-view:has(.mdname-heading) .metadata-container,
+.markdown-preview-view:has(.mdname-heading) .frontmatter { display: none; }
+
+/* --- \ キーの記法入力補助 (EditorSuggest) のドロップダウン --- */
+.mdname-suggest-label { font-weight: 600; }
+.mdname-suggest-example {
+	font-size: 0.85em;
+	color: var(--text-muted);
+}
+
+/* --- 閲覧モードのみ: 意味的にひとかたまりのブロック間の空きを詰める ---
+ * 発話者(**名前**)と台詞(>)、柱書き(###)とト書き(-) は閲覧モードでは別ブロックとして
+ * 描画され Obsidian が段落間マージンを入れるため、隣接セレクタでそれを打ち消してくっつける。
+ * el がブロック要素そのものでも、ラッパー div でも効くよう内側の要素も対象にする。 */
+.markdown-preview-view .mdname-speaker,
+.markdown-preview-view .mdname-speaker p,
+.markdown-preview-view .mdname-speaker strong { margin-bottom: 0 !important; }
+.markdown-preview-view .mdname-speaker + .mdname-dialogue,
+.markdown-preview-view .mdname-speaker + .mdname-dialogue blockquote { margin-top: 0 !important; }
+
+.markdown-preview-view .mdname-scene,
+.markdown-preview-view .mdname-scene h3 { margin-bottom: 0 !important; }
+.markdown-preview-view .mdname-scene + .mdname-direction,
+.markdown-preview-view .mdname-scene + .mdname-direction ul { margin-top: 0 !important; }
+
+/* --- 行 ID を消す (コマンド) の確認の画面 --- */
+.mdname-confirm-note { color: var(--text-muted); font-size: 0.9em; margin-top: 0.4em; }
+.mdname-confirm-warn { color: var(--text-error); margin-top: 0.8em; }
+.mdname-confirm-buttons { display: flex; justify-content: flex-end; gap: 0.6em; margin-top: 1em; }
+
+/* --- ページ見出し (## p.001) と話の題 (# ...) の見た目を分ける (編集ビューだけ。2026-10-04 作者判断) ---
+ * 事故の元は、エディタで `#` と `##` の行が同じ見た目だったこと (E4P_2-17 の `# p.014-015` が題として読まれ、
+ * 見開きの中身が黙って前のページに入った)。**ページ見出しの行だけ、上に細い罫線を付ける。閲覧モードと同じ見た目**
+ * (作者の指示で、最初に付けた左の太い帯は撤去した)。**色は使わない** (色は「何の記法か」の体系で、ト書き・柱書き・
+ * 台詞などと紛れる)。話の題 (#) は今の見た目のまま。
+ * クラスは main.js (buildDecorations) が pageHeadingOf の「ページになる行」に付ける。閲覧モードも、見出しの上に
+ * 同じ細い罫線を付ける (上の h2 の指定)。 */
+.cm-line.mdname-pagehead {
+	border-top: 1px solid var(--text-faint);
+	/* **罫線と見出しの文字の間を、閲覧モードと同じくらいにする** (2026-10-04 作者の指示)。
+	 * Obsidian のテーマは見出しの行の上に、前の行によって違う余白 (padding-top / margin-top) を付けるので、
+	 * 固定する (!important はテーマのセレクタが長く、こちらが負けるため)。margin は 0 (ページ間の空きは前の行が決める) */
+	padding-top: 0.8rem !important;
+	margin-top: 0 !important;
+}
+/* 見開き (## p.002-003) は「見開き」の印を行末に小さく出す (表示だけ。原稿は変えない) */
+.cm-line.mdname-pagehead-spread::after {
+	content: "見開き";
+	font-size: 0.6em;
+	font-weight: normal;
+	margin-left: 0.9em;
+	padding: 0 0.5em;
+	border: 1px solid var(--text-faint);
+	border-radius: 3px;
+	color: var(--text-muted);
+	vertical-align: middle;
+}
